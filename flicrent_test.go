@@ -29,6 +29,7 @@ func TestFlicRent_CreateTable(t *testing.T) {
 	} else {
 		fr.Client = client
 		fr.Ctx = ctx
+		fr.SleepTime = 20
 
 		rand.Seed(time.Now().UnixNano())
 		chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +

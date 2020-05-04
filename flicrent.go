@@ -30,11 +30,22 @@ type FlicRent struct {
 	Client      *bigquery.Client
 	DatasetName string
 	TableName   string
+	SleepTime   time.Duration
 }
 
 //GetNew GetNew
 func (f *FlicRent) GetNew() Rent {
 	return f
+}
+
+//SetClient SetClient
+func (f *FlicRent) SetClient(clt *bigquery.Client) {
+	f.Client = clt
+}
+
+//SetContext SetContext
+func (f *FlicRent) SetContext(ctx context.Context) {
+	f.Ctx = ctx
 }
 
 //EntFlic EntFlic
@@ -53,7 +64,7 @@ func (f *FlicRent) EntFlic(recs *[]fp.Flic) (bool, int64) {
 		cnt++
 		if cnt >= 10 {
 			cnt = 0
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(f.SleepTime * time.Millisecond)
 		}
 		wg.Add(1)
 		go func(val Flic) {
