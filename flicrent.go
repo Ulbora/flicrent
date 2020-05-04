@@ -3,6 +3,8 @@ package flicrent
 import (
 	"context"
 	"log"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"cloud.google.com/go/bigquery"
@@ -30,21 +32,44 @@ type FlicRent struct {
 	TableName   string
 }
 
+//GetNew GetNew
+func (f *FlicRent) GetNew() Rent {
+	return f
+}
+
 //EntFlic EntFlic
-func (f *FlicRent) EntFlic(recs *[]fp.Flic) bool {
-	var rtn bool
+func (f *FlicRent) EntFlic(recs *[]fp.Flic) (bool, int64) {
+	var rtn = true
+	var tot int64
 	var flics []Flic
 	for _, r := range *recs {
 		bqr := f.prepRecord(&r)
 		flics = append(flics, *bqr)
 	}
 	u := f.Client.Dataset(f.DatasetName).Table(f.TableName).Inserter()
-	if err := u.Put(f.Ctx, flics); err != nil {
-		log.Println("big query put err:", err)
-	} else {
-		rtn = true
+	var wg sync.WaitGroup
+	var cnt int
+	for _, flic := range flics {
+		cnt++
+		if cnt >= 10 {
+			cnt = 0
+			time.Sleep(10 * time.Millisecond)
+		}
+		wg.Add(1)
+		go func(val Flic) {
+			defer wg.Done()
+			err := u.Put(f.Ctx, val)
+			if err != nil {
+				log.Println("big query put err:", err, val)
+				rtn = false
+			} else {
+				atomic.AddInt64(&tot, 1)
+			}
+		}(flic)
 	}
-	return rtn
+	wg.Wait()
+
+	return rtn, tot
 }
 
 func (f *FlicRent) prepRecord(rec *fp.Flic) *Flic {
@@ -64,21 +89,11 @@ func (f *FlicRent) prepRecord(rec *fp.Flic) *Flic {
 //CreateTable CreateTable
 func (f *FlicRent) CreateTable(tableName string) bool {
 	var rtn bool
-	// projectID := "my-project-id"
-	// datasetID := "mydatasetid"
-	// tableID := "mytableid"
-	// ctx := context.Background()
-
-	// client, err := bigquery.NewClient(ctx, projectID)
-	// if err != nil {
-	// 		return fmt.Errorf("bigquery.NewClient: %v", err)
-	// }
-	// defer client.Close()
 
 	sampleSchema := bigquery.Schema{
 		{Name: "key", Type: bigquery.StringFieldType},
 		{Name: "lic", Type: bigquery.StringFieldType},
-		{Name: "exp_date", Type: bigquery.DateTimeFieldType},
+		{Name: "exp_date", Type: bigquery.TimestampFieldType},
 		{Name: "lic_name", Type: bigquery.StringFieldType},
 		{Name: "bus_name", Type: bigquery.StringFieldType},
 		{Name: "premise_address", Type: bigquery.StringFieldType},
@@ -100,16 +115,3 @@ func (f *FlicRent) CreateTable(tableName string) bool {
 	}
 	return rtn
 }
-
-// func insertRec(ctx context.Context, client *bigquery.Client) bool {
-// 	fmt.Println("client:", client)
-// 	u := client.Dataset("ffl").Table("ffl_list").Uploader()
-// 	fmt.Println(ctx)
-// 	fmt.Println(u)
-
-// 	// if err := u.Put(ctx, f); err != nil {
-// 	if err := u.Put(ctx, f); err != nil {
-// 		fmt.Println("err:", err)
-// 	}
-// 	return true
-// }
