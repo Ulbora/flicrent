@@ -48,6 +48,11 @@ func (f *FlicRent) SetContext(ctx context.Context) {
 	f.Ctx = ctx
 }
 
+//SetSleepTime SetSleepTime
+func (f *FlicRent) SetSleepTime(sleepTime time.Duration) {
+	f.SleepTime = sleepTime
+}
+
 //EntFlic EntFlic
 func (f *FlicRent) EntFlic(recs *[]fp.Flic) (bool, int64) {
 	var rtn = true

@@ -29,7 +29,7 @@ func TestFlicRent_CreateTable(t *testing.T) {
 	} else {
 		fr.Client = client
 		fr.Ctx = ctx
-		fr.SleepTime = 20
+		//fr.SleepTime = 20
 
 		rand.Seed(time.Now().UnixNano())
 		chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
@@ -65,6 +65,8 @@ func TestFlicRent_EntFlic(t *testing.T) {
 	fpi := fp.GetNew()
 	recs := fpi.PrepRecords(rec)
 	fmt.Println("Flic len: ", len(*recs))
+	var st int = 20
+	r.SetSleepTime(time.Duration(st))
 
 	suc, total := r.EntFlic(recs)
 	fmt.Println("total records: ", total)

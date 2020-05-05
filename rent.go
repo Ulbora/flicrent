@@ -2,6 +2,7 @@ package flicrent
 
 import (
 	"context"
+	"time"
 
 	"cloud.google.com/go/bigquery"
 	fp "github.com/Ulbora/FlicPrep"
@@ -13,6 +14,7 @@ type Rent interface {
 	CreateTable(tableName string) bool
 	SetClient(clt *bigquery.Client)
 	SetContext(ctx context.Context)
+	SetSleepTime(sleepTime time.Duration)
 }
 
 //go mod init github.com/Ulbora/flicrent
