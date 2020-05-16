@@ -19,6 +19,9 @@ type Flic struct {
 	LicName        string    `bigquery:"lic_name"`
 	BusName        string    `bigquery:"bus_name"`
 	PremiseAddress string    `bigquery:"premise_address"`
+	Address        string    `bigquery:"address"`
+	City           string    `bigquery:"city"`
+	State          string    `bigquery:"state"`
 	PremiseZip     string    `bigquery:"premise_zip"`
 	MailingAddress string    `bigquery:"mailing_address"`
 	Phone          string    `bigquery:"phone"`
@@ -96,6 +99,9 @@ func (f *FlicRent) prepRecord(rec *fp.Flic) *Flic {
 	rtn.BusName = rec.BusName
 	rtn.ExpDate = rec.ExpDate
 	rtn.PremiseAddress = rec.PremiseAddress
+	rtn.Address = rec.Address
+	rtn.City = rec.City
+	rtn.State = rec.State
 	rtn.PremiseZip = rec.PremiseZip
 	rtn.Phone = rec.Phone
 	rtn.MailingAddress = rec.MailingAddress
@@ -113,6 +119,9 @@ func (f *FlicRent) CreateTable(tableName string) bool {
 		{Name: "lic_name", Type: bigquery.StringFieldType},
 		{Name: "bus_name", Type: bigquery.StringFieldType},
 		{Name: "premise_address", Type: bigquery.StringFieldType},
+		{Name: "address", Type: bigquery.StringFieldType},
+		{Name: "city", Type: bigquery.StringFieldType},
+		{Name: "state", Type: bigquery.StringFieldType},
 		{Name: "premise_zip", Type: bigquery.StringFieldType},
 		{Name: "mailing_address", Type: bigquery.StringFieldType},
 		{Name: "phone", Type: bigquery.StringFieldType},
